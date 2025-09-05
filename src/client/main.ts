@@ -49,17 +49,50 @@ function applyTransform() {
 }
 
 // Zoom fonksiyonları
-function updateZoom(newZoom: number) {
+function updateZoom(newZoom: number, centerX?: number, centerY?: number) {
+  const oldZoom = currentZoom;
   currentZoom = Math.max(0.1, Math.min(5, newZoom));
+  
+  // Eğer merkez noktası verilmişse, o noktayı sabit tutarak zoom yap
+  if (centerX !== undefined && centerY !== undefined) {
+    const zoomRatio = currentZoom / oldZoom;
+    panX = centerX - (centerX - panX) * zoomRatio;
+    panY = centerY - (centerY - panY) * zoomRatio;
+  }
+  
   applyTransform();
 }
 
+// Şekillerin merkezini bul
+function getShapesCenter() {
+  const bounds = getShapesBounds();
+  if (!bounds) {
+    // Eğer şekil yoksa container'ın merkezini döndür
+    return {
+      x: svgContainer.clientWidth / 2,
+      y: svgContainer.clientHeight / 2
+    };
+  }
+  
+  // Şekillerin merkez noktasını hesapla (screen koordinatlarında)
+  const shapeCenterX = (bounds.minX + bounds.maxX) / 2;
+  const shapeCenterY = (bounds.minY + bounds.maxY) / 2;
+  
+  // Screen koordinatlarına çevir
+  const screenX = shapeCenterX * currentZoom + panX;
+  const screenY = shapeCenterY * currentZoom + panY;
+  
+  return { x: screenX, y: screenY };
+}
+
 function zoomIn() {
-  updateZoom(currentZoom * 1.2);
+  const center = getShapesCenter();
+  updateZoom(currentZoom * 1.2, center.x, center.y);
 }
 
 function zoomOut() {
-  updateZoom(currentZoom / 1.2);
+  const center = getShapesCenter();
+  updateZoom(currentZoom / 1.2, center.x, center.y);
 }
 
 function resetView() {
@@ -290,8 +323,14 @@ fitShapesBtn.addEventListener('click', fitAllShapes);
 // Mouse wheel zoom
 svgContainer.addEventListener('wheel', (e) => {
   e.preventDefault();
+  
+  // Mouse pozisyonunu container'a göre hesapla
+  const rect = svgContainer.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+  
   const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
-  updateZoom(currentZoom * zoomFactor);
+  updateZoom(currentZoom * zoomFactor, mouseX, mouseY);
 });
 
 // Drag to pan
