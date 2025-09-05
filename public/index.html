@@ -91,16 +91,17 @@ SVG İndir
 </div>
 
 <!-- SVG Container with zoom/pan controls -->
-<div class="mb-3 flex gap-2 items-center">
+<div class="mb-3 flex gap-2 items-center flex-wrap">
 <label class="text-sm font-medium">Zoom:</label>
 <button id="zoomIn" class="px-2 py-1 bg-slate-200 rounded hover:bg-slate-300">+</button>
 <span id="zoomLevel" class="text-sm px-2">100%</span>
 <button id="zoomOut" class="px-2 py-1 bg-slate-200 rounded hover:bg-slate-300">-</button>
-<button id="resetView" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 ml-3">Reset</button>
+<button id="resetView" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 ml-2">Reset</button>
+<button id="fitShapes" class="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 ml-2">Tümünü Göster</button>
 </div>
 
-<div id="svgContainer" class="border border-slate-200 rounded-xl bg-slate-50 overflow-auto cursor-grab" style="height: 400px;">
-<svg id="stage" width="2000" height="2000" class="block">
+<div id="svgContainer" class="border border-slate-200 rounded-xl bg-slate-50 overflow-hidden cursor-grab relative" style="width: 100%; height: 400px;">
+<svg id="stage" width="4000" height="4000" class="absolute top-0 left-0" style="transform-origin: 0 0;">
 <defs>
 <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
 <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e2e8f0" stroke-width="1"/>

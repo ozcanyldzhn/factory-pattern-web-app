@@ -28,6 +28,7 @@ const downloadBtn = document.getElementById('downloadBtn') as HTMLButtonElement;
 const zoomInBtn = document.getElementById('zoomIn') as HTMLButtonElement;
 const zoomOutBtn = document.getElementById('zoomOut') as HTMLButtonElement;
 const resetViewBtn = document.getElementById('resetView') as HTMLButtonElement;
+const fitShapesBtn = document.getElementById('fitShapes') as HTMLButtonElement;
 const zoomLevelEl = document.getElementById('zoomLevel') as HTMLSpanElement;
 
 const apiService = new ApiService();
@@ -36,15 +37,21 @@ let counter = 0;
 
 // Zoom ve pan state
 let currentZoom = 1;
+let panX = 0;
+let panY = 0;
 let isPanning = false;
-let panStart = { x: 0, y: 0 };
+let lastPanPoint = { x: 0, y: 0 };
+
+// Transform uygula
+function applyTransform() {
+  stage.style.transform = `translate(${panX}px, ${panY}px) scale(${currentZoom})`;
+  zoomLevelEl.textContent = `${Math.round(currentZoom * 100)}%`;
+}
 
 // Zoom fonksiyonları
 function updateZoom(newZoom: number) {
-  currentZoom = Math.max(0.1, Math.min(5, newZoom)); // 10% ile 500% arası sınırla
-  stage.style.transform = `scale(${currentZoom})`;
-  stage.style.transformOrigin = 'top left';
-  zoomLevelEl.textContent = `${Math.round(currentZoom * 100)}%`;
+  currentZoom = Math.max(0.1, Math.min(5, newZoom));
+  applyTransform();
 }
 
 function zoomIn() {
@@ -56,8 +63,65 @@ function zoomOut() {
 }
 
 function resetView() {
-  updateZoom(1);
-  svgContainer.scrollTo(0, 0);
+  currentZoom = 1;
+  panX = 0;
+  panY = 0;
+  applyTransform();
+}
+
+// Şekillerin bounding box'ını hesapla
+function getShapesBounds() {
+  if (shapes.length === 0) return null;
+  
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  
+  shapes.forEach(shape => {
+    const { x, y } = shape;
+    let width = 0, height = 0;
+    
+    if (shape.kind === 'circle') {
+      const r = shape.radius;
+      minX = Math.min(minX, x - r);
+      maxX = Math.max(maxX, x + r);
+      minY = Math.min(minY, y - r);
+      maxY = Math.max(maxY, y + r);
+    } else if (shape.kind === 'rectangle') {
+      minX = Math.min(minX, x);
+      maxX = Math.max(maxX, x + shape.width);
+      minY = Math.min(minY, y);
+      maxY = Math.max(maxY, y + shape.height);
+    } else if (shape.kind === 'triangle') {
+      const size = shape.size;
+      const h = (Math.sqrt(3) / 2) * size;
+      minX = Math.min(minX, x - size / 2);
+      maxX = Math.max(maxX, x + size / 2);
+      minY = Math.min(minY, y);
+      maxY = Math.max(maxY, y + h);
+    }
+  });
+  
+  return { minX, minY, maxX, maxY, width: maxX - minX, height: maxY - minY };
+}
+
+// Tüm şekilleri göster
+function fitAllShapes() {
+  const bounds = getShapesBounds();
+  if (!bounds) return;
+  
+  const containerWidth = svgContainer.clientWidth;
+  const containerHeight = svgContainer.clientHeight;
+  
+  // Padding ekle
+  const padding = 50;
+  const scaleX = (containerWidth - padding * 2) / bounds.width;
+  const scaleY = (containerHeight - padding * 2) / bounds.height;
+  const scale = Math.min(scaleX, scaleY, 2); // Max 2x zoom
+  
+  currentZoom = scale;
+  panX = -bounds.minX * scale + padding;
+  panY = -bounds.minY * scale + padding;
+  
+  applyTransform();
 }
 
 function renderSizeFields() {
@@ -221,6 +285,7 @@ downloadBtn.addEventListener('click', downloadSVG);
 zoomInBtn.addEventListener('click', zoomIn);
 zoomOutBtn.addEventListener('click', zoomOut);
 resetViewBtn.addEventListener('click', resetView);
+fitShapesBtn.addEventListener('click', fitAllShapes);
 
 // Mouse wheel zoom
 svgContainer.addEventListener('wheel', (e) => {
@@ -229,22 +294,27 @@ svgContainer.addEventListener('wheel', (e) => {
   updateZoom(currentZoom * zoomFactor);
 });
 
-// Drag to pan (scroll container)
+// Drag to pan
 svgContainer.addEventListener('mousedown', (e) => {
   if (e.button === 0) { // Sol tık
     isPanning = true;
-    panStart = { x: e.clientX - svgContainer.scrollLeft, y: e.clientY - svgContainer.scrollTop };
+    lastPanPoint = { x: e.clientX, y: e.clientY };
     svgContainer.style.cursor = 'grabbing';
+    e.preventDefault();
   }
 });
 
 svgContainer.addEventListener('mousemove', (e) => {
   if (isPanning) {
     e.preventDefault();
-    svgContainer.scrollTo(
-      panStart.x - e.clientX,
-      panStart.y - e.clientY
-    );
+    const deltaX = e.clientX - lastPanPoint.x;
+    const deltaY = e.clientY - lastPanPoint.y;
+    
+    panX += deltaX;
+    panY += deltaY;
+    
+    lastPanPoint = { x: e.clientX, y: e.clientY };
+    applyTransform();
   }
 });
 
