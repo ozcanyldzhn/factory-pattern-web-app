@@ -146,7 +146,14 @@ addBtn.addEventListener('click', async () => {
 
 clearBtn.addEventListener('click', () => {
   shapes.length = 0;
-  while (stage.firstChild) stage.removeChild(stage.firstChild);
+  
+  // Sadece şekilleri sil, grid pattern'i koru
+  const elementsToRemove = Array.from(stage.children).filter(child => 
+    child.tagName !== 'defs' && !(child.tagName === 'rect' && child.getAttribute('fill') === 'url(#grid)')
+  );
+  
+  elementsToRemove.forEach(element => element.remove());
+  
   shapeList.innerHTML = '';
   counter = 0;
 });
