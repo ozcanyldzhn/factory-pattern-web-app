@@ -10,6 +10,7 @@ import { ApiService } from './apiService';
 
 const stage = document.getElementById('stage') as SVGSVGElement;
 const shapeList = document.getElementById('shapeList') as HTMLUListElement;
+const svgContainer = document.getElementById('svgContainer') as HTMLDivElement;
 
 const kindEl = document.getElementById('shapeKind') as HTMLSelectElement;
 const xEl = document.getElementById('x') as HTMLInputElement;
@@ -23,9 +24,41 @@ const addBtn = document.getElementById('addBtn') as HTMLButtonElement;
 const clearBtn = document.getElementById('clearBtn') as HTMLButtonElement;
 const downloadBtn = document.getElementById('downloadBtn') as HTMLButtonElement;
 
+// Zoom ve pan kontrolleri
+const zoomInBtn = document.getElementById('zoomIn') as HTMLButtonElement;
+const zoomOutBtn = document.getElementById('zoomOut') as HTMLButtonElement;
+const resetViewBtn = document.getElementById('resetView') as HTMLButtonElement;
+const zoomLevelEl = document.getElementById('zoomLevel') as HTMLSpanElement;
+
 const apiService = new ApiService();
 const shapes: ShapeOptions[] = [];
 let counter = 0;
+
+// Zoom ve pan state
+let currentZoom = 1;
+let isPanning = false;
+let panStart = { x: 0, y: 0 };
+
+// Zoom fonksiyonları
+function updateZoom(newZoom: number) {
+  currentZoom = Math.max(0.1, Math.min(5, newZoom)); // 10% ile 500% arası sınırla
+  stage.style.transform = `scale(${currentZoom})`;
+  stage.style.transformOrigin = 'top left';
+  zoomLevelEl.textContent = `${Math.round(currentZoom * 100)}%`;
+}
+
+function zoomIn() {
+  updateZoom(currentZoom * 1.2);
+}
+
+function zoomOut() {
+  updateZoom(currentZoom / 1.2);
+}
+
+function resetView() {
+  updateZoom(1);
+  svgContainer.scrollTo(0, 0);
+}
 
 function renderSizeFields() {
   const kind = kindEl.value as 'circle' | 'rectangle' | 'triangle';
@@ -183,6 +216,47 @@ clearBtn.addEventListener('click', () => {
 });
 
 downloadBtn.addEventListener('click', downloadSVG);
+
+// Zoom ve pan event listeners
+zoomInBtn.addEventListener('click', zoomIn);
+zoomOutBtn.addEventListener('click', zoomOut);
+resetViewBtn.addEventListener('click', resetView);
+
+// Mouse wheel zoom
+svgContainer.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+  updateZoom(currentZoom * zoomFactor);
+});
+
+// Drag to pan (scroll container)
+svgContainer.addEventListener('mousedown', (e) => {
+  if (e.button === 0) { // Sol tık
+    isPanning = true;
+    panStart = { x: e.clientX - svgContainer.scrollLeft, y: e.clientY - svgContainer.scrollTop };
+    svgContainer.style.cursor = 'grabbing';
+  }
+});
+
+svgContainer.addEventListener('mousemove', (e) => {
+  if (isPanning) {
+    e.preventDefault();
+    svgContainer.scrollTo(
+      panStart.x - e.clientX,
+      panStart.y - e.clientY
+    );
+  }
+});
+
+svgContainer.addEventListener('mouseup', () => {
+  isPanning = false;
+  svgContainer.style.cursor = 'grab';
+});
+
+svgContainer.addEventListener('mouseleave', () => {
+  isPanning = false;
+  svgContainer.style.cursor = 'grab';
+});
 
 async function renderFromServer() {
   try {

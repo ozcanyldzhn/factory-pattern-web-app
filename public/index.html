@@ -42,11 +42,11 @@ bg: '#F0F5F5',
 <div class="grid grid-cols-2 gap-3">
 <div>
 <label class="block text-sm">X</label>
-<input id="x" type="number" value="150" class="w-full border rounded-xl px-3 py-2" />
+<input id="x" type="number" value="300" class="w-full border rounded-xl px-3 py-2" />
 </div>
 <div>
 <label class="block text-sm">Y</label>
-<input id="y" type="number" value="120" class="w-full border rounded-xl px-3 py-2" />
+<input id="y" type="number" value="250" class="w-full border rounded-xl px-3 py-2" />
 </div>
 </div>
 
@@ -90,7 +90,17 @@ SVG İndir
 </button>
 </div>
 
-<svg id="stage" width="100%" height="400" class="border border-slate-200 rounded-xl bg-slate-50">
+<!-- SVG Container with zoom/pan controls -->
+<div class="mb-3 flex gap-2 items-center">
+<label class="text-sm font-medium">Zoom:</label>
+<button id="zoomIn" class="px-2 py-1 bg-slate-200 rounded hover:bg-slate-300">+</button>
+<span id="zoomLevel" class="text-sm px-2">100%</span>
+<button id="zoomOut" class="px-2 py-1 bg-slate-200 rounded hover:bg-slate-300">-</button>
+<button id="resetView" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 ml-3">Reset</button>
+</div>
+
+<div id="svgContainer" class="border border-slate-200 rounded-xl bg-slate-50 overflow-auto cursor-grab" style="height: 400px;">
+<svg id="stage" width="2000" height="2000" class="block">
 <defs>
 <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
 <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e2e8f0" stroke-width="1"/>
@@ -98,6 +108,7 @@ SVG İndir
 </defs>
 <rect width="100%" height="100%" fill="url(#grid)" />
 </svg>
+</div>
 
 <div class="mt-4">
 <h3 class="font-medium mb-2">Şekiller</h3>
