@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Shape Factory (TS)</title>
+<!-- Tailwind Play CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+theme: {
+extend: {
+colors: {
+primary: '#EC1E80',
+bg: '#F0F5F5',
+}
+}
+}
+}
+</script>
+</head>
+<body class="min-h-screen bg-bg text-slate-800">
+<header class="max-w-6xl mx-auto px-4 py-6">
+<h1 class="text-3xl font-bold tracking-tight">TS Shape Factory</h1>
+<p class="text-sm text-slate-600">Factory Pattern • Interface • Clean Architecture</p>
+</header>
+
+
+<main class="max-w-6xl mx-auto px-4 grid md:grid-cols-[360px,1fr] gap-6 pb-12">
+<!-- Left Panel -->
+<section class="bg-white rounded-2xl shadow p-5 space-y-4 border border-slate-100">
+<h2 class="font-semibold text-lg">Yeni Şekil</h2>
+<div class="space-y-3">
+<label class="block text-sm">Tür</label>
+<select id="shapeKind" class="w-full border rounded-xl px-3 py-2">
+<option value="circle">Daire</option>
+<option value="rectangle">Dikdörtgen</option>
+<option value="triangle">Üçgen</option>
+</select>
+
+
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="block text-sm">X</label>
+<input id="x" type="number" value="150" class="w-full border rounded-xl px-3 py-2" />
+</div>
+<div>
+<label class="block text-sm">Y</label>
+<input id="y" type="number" value="120" class="w-full border rounded-xl px-3 py-2" />
+</div>
+</div>
+
+
+<div id="sizeFields" class="space-y-3"></div>
+
+
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="block text-sm">İç Renk</label>
+<input id="fill" type="color" value="#EC1E80" class="w-full border rounded-xl h-10" />
+</div>
+<div>
+<label class="block text-sm">Çizgi</label>
+<input id="stroke" type="color" value="#0f172a" class="w-full border rounded-xl h-10" />
+</div>
+</div>
+
+<div>
+<label class="block text-sm">Çizgi Kalınlığı</label>
+<input id="strokeWidth" type="number" value="2" min="0" class="w-full border rounded-xl px-3 py-2" />
+</div>
+
+<div class="flex gap-2 pt-2">
+<button id="addBtn" class="flex-1 bg-primary text-white rounded-xl px-4 py-2 hover:bg-pink-600 transition">
+Ekle
+</button>
+<button id="clearBtn" class="flex-1 bg-slate-200 text-slate-700 rounded-xl px-4 py-2 hover:bg-slate-300 transition">
+Temizle
+</button>
+</div>
+</div>
+</section>
+
+<!-- Right Panel -->
+<section class="bg-white rounded-2xl shadow p-5 border border-slate-100">
+<h2 class="font-semibold text-lg mb-4">Canvas</h2>
+<div class="mb-4">
+<button id="downloadBtn" class="bg-green-500 text-white rounded-xl px-4 py-2 hover:bg-green-600 transition">
+SVG İndir
+</button>
+</div>
+
+<svg id="stage" width="100%" height="400" class="border border-slate-200 rounded-xl bg-slate-50">
+<defs>
+<pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+<path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e2e8f0" stroke-width="1"/>
+</pattern>
+</defs>
+<rect width="100%" height="100%" fill="url(#grid)" />
+</svg>
+
+<div class="mt-4">
+<h3 class="font-medium mb-2">Şekiller</h3>
+<ul id="shapeList" class="space-y-2 max-h-32 overflow-y-auto">
+<!-- Şekiller buraya eklenecek -->
+</ul>
+</div>
+</section>
+</main>
+
+<script type="module" src="/app.js"></script>
+</body>
+</html>

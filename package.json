@@ -1,0 +1,24 @@
+{
+  "name": "shape-factory-ts",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+  "build:client": "esbuild src/client/main.ts --bundle --outfile=public/app.js --format=esm --platform=browser --target=es2018",
+  "build": "npm run build:client",
+  "dev": "npm run build:client && vercel dev",
+  "watch": "esbuild src/client/main.ts --bundle --outfile=public/app.js --format=esm --platform=browser --target=es2018 --watch",
+  "deploy": "npm run build && vercel --prod"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "esbuild": "^0.23.1",
+    "serve": "^14.2.5",
+    "typescript": "^5.9.2",
+    "vercel": "^47.0.5"
+  },
+  "dependencies": {
+    "@vercel/node": "^5.3.21",
+    "cors": "^2.8.5"
+  }
+}
