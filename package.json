@@ -6,8 +6,9 @@
   "scripts": {
   "build:client": "esbuild src/client/main.ts --bundle --outfile=public/app.js --format=esm --platform=browser --target=es2018",
   "build": "npm run build:client",
-  "dev": "npm run build:client && vercel dev",
-  "watch": "esbuild src/client/main.ts --bundle --outfile=public/app.js --format=esm --platform=browser --target=es2018 --watch",
+  "dev:client": "esbuild src/client/main.ts --bundle --outfile=public/app.js --format=esm --platform=browser --target=es2018 --watch",
+  "dev:serve": "npx serve public -l 3000",
+  "dev": "npm run build:client",
   "deploy": "npm run build && vercel --prod"
   },
   "devDependencies": {
