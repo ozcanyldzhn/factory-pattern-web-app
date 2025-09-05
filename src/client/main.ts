@@ -92,20 +92,44 @@ function buildOptions(): ShapeOptions {
 }
 
 function addListItem(kind: string) {
-  counter++;
+  // Dinamik ID: Mevcut şekil sayısına göre numara ver
+  const currentShapeCount = shapeList.children.length + 1;
+  
   const li = document.createElement('li');
   li.className = 'flex items-center justify-between rounded-xl border p-2';
   li.innerHTML = `
-    <span class="text-slate-700">#${counter} • ${kind}</span>
+    <span class="text-slate-700">#${currentShapeCount} • ${kind}</span>
     <button class="text-primary hover:underline">Kaldır</button>
   `;
+  
   const btn = li.querySelector('button')!;
   const element = stage.lastElementChild!; // just appended
+  
   btn.addEventListener('click', () => {
+    // Şekli shapes array'den de kaldır
+    const index = Array.from(shapeList.children).indexOf(li);
+    if (index > -1) {
+      shapes.splice(index, 1);
+    }
+    
     element.remove();
     li.remove();
+    
+    // Liste numaralarını yeniden düzenle
+    updateListNumbers();
   });
+  
   shapeList.appendChild(li);
+}
+
+function updateListNumbers() {
+  Array.from(shapeList.children).forEach((li, index) => {
+    const span = li.querySelector('span');
+    if (span) {
+      const kindText = span.textContent?.split('•')[1] || '';
+      span.textContent = `#${index + 1} •${kindText}`;
+    }
+  });
 }
 
 function downloadSVG() {
@@ -155,7 +179,7 @@ clearBtn.addEventListener('click', () => {
   elementsToRemove.forEach(element => element.remove());
   
   shapeList.innerHTML = '';
-  counter = 0;
+  // counter artık kullanılmıyor, dinamik ID sistemi var
 });
 
 downloadBtn.addEventListener('click', downloadSVG);
